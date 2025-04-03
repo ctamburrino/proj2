@@ -6,18 +6,13 @@
  * - David Kujawinski
  * - Dinh Troung
  * 
- * Date Last Modified: 3/7/2025
+ * Date Last Modified: 4/3/2025
  */
 
 import java.util.List;
 
 public class TrainingSettings {
     String trainingDataFilePath;
-    boolean setWeightsToZero;
-    int maxEpochs;
     String trainedWeightsFile;
-    double learningRate;
-    double thetaThreshold;
-    double weightChangeThreshold;
     List<DataSample> dataset;
 }
