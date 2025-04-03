@@ -125,23 +125,22 @@ public class NeuralNet {
     }
 
 
-    public static int applyActivationFunction(int yIn, int thetaThreshold) {
+    public static int applyActivationFunction(int yIn) {
     /*
     Applies activation function to value
 
     Parameters:
     - int yIn: value to be apply activation function on
-    - int thetaThreshold: user specificed threshold value for activation function
 
     Return:
     int representing output of function
     */
-        if (yIn > thetaThreshold) {
+        if (yIn > 0) {
             return 1;
-        } else if(yIn < thetaThreshold){
+        } else if(yIn < 0){
             return -1;
         } else {
-            return 0;
+            return yIn;
         }
     }
 
