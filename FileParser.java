@@ -58,7 +58,11 @@ public class FileParser {
                     line = reader.readLine();
                     String[] parts = line.trim().split("\\s+");
                     for (int k = 0; k < inputColumns; k ++){
-                        pixelArray[pixelArrayIndex] = (Integer.parseInt(parts[k]));
+                        if (Integer.parseInt(parts[k]) == 0){
+                            pixelArray[pixelArrayIndex] = 1;
+                        }else{
+                            pixelArray[pixelArrayIndex] = -1;
+                        }
                         pixelArrayIndex++;
                     }
                 }
