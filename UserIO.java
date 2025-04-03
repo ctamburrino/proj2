@@ -7,7 +7,7 @@
  * - David Kujawinski
  * - Dinh Troung
  * 
- * Date Last Modified: 3/7/2025
+ * Date Last Modified: 4/3/2025
  */
 
 import java.io.File;
@@ -18,7 +18,7 @@ public class UserIO {
     /*
     Runs loop to control user IO interface
     */
-    public static void welcomeToPerceptron() {
+    public static void welcomeToHopfield() {
         int selection = 0;
         while (selection != 3) {
             selection = getUserIntSelection();
@@ -40,7 +40,7 @@ public class UserIO {
         TestingSettings netTestingSettings = new TestingSettings();
         int choice;
         while(true) {
-            System.out.println("Welcome to our first neural network - A Perceptron Net!");
+            System.out.println("Welcome to our neural network - A Discrete Hopfield Net!");
             System.out.println("1) Enter 1 to train the net on a data file");
             System.out.println("2) Enter 2 to test the net on a data file");
             System.out.println("3) Enter 3 to quit");
@@ -52,9 +52,8 @@ public class UserIO {
                 case 1:
                     netTrainingSettings = getTrainingSettings(netTrainingSettings);
                     netTrainingSettings.dataset = FileParser.parseDataFile(netTrainingSettings.trainingDataFilePath);
-                    int numEpochs = NeuralNet.train(netTrainingSettings);
-                    if (numEpochs > 0){
-                        System.out.println("Training convereged after " + numEpochs + " epochs.\n");
+                    if (NeuralNet.train(netTrainingSettings)){
+                        System.out.println("Sucessfully trained Neural Net\n");
                     }else{
                         System.out.println("Failed to execute training algorithim.");
                     }
@@ -98,67 +97,12 @@ public class UserIO {
         String trainingFilePath = getValidFile(trainingFilePrompt);
         netTrainingSettings.trainingDataFilePath = trainingFilePath;
 
-        // Get weight initialization selection
-        String weightPrompt = "\nEnter 0 to initialize weights to 0, enter 1 to initialize weights to random values between -0.5 and 0.5:";
-        int weightChoice = getIntInput(weightPrompt, 0, 1);
-        netTrainingSettings.setWeightsToZero = (weightChoice == 0);
-
-        // Get maximum epochs
-        String epochPrompt = "\nEnter the maximum number of training epochs:";
-        int epochChoice = getIntInput(epochPrompt, 1, 10000);
-        netTrainingSettings.maxEpochs = epochChoice;
-
         // Get file name to save trained weights to
         String trainedWeightOutputPrompt = "\nEnter a file name to save the trained weight values:";
         String trainedWeightOutputFile = getValidFilename(trainedWeightOutputPrompt);
         netTrainingSettings.trainedWeightsFile = trainedWeightOutputFile;
 
-        // Get learning rate (alpha)
-        String alphaPrompt = "\nEnter the learning rate alpha from 0 to 1 but not including 0:";
-        double alphaChoice = getDoubleInput(alphaPrompt, 0.1, 1.0);
-        netTrainingSettings.learningRate = alphaChoice;
-
-        // Get threshold (theta)
-        String thetaPrompt = "\nEnter the threshold theta:";
-        double thetaChoice = getDoubleInput(thetaPrompt, -10000.0, 10000.0);
-        netTrainingSettings.thetaThreshold = thetaChoice;
-
-        // Get weight change threshold
-        String weightThresholdPrompt = "\nEnter the threshold to be used for measuring weight changes:";
-        double weightThresholdChoice = getDoubleInput(weightThresholdPrompt, 0.0000001, 10000000.0);
-        netTrainingSettings.weightChangeThreshold = weightThresholdChoice;
-
         return netTrainingSettings;
-    }
-
-    /*
-    Prompts user for question to and collects an int response
-
-    Parameters:
-    - prompt - prompt to display to user
-    - min - minimum int selection
-    - max - maximum int selection
-
-    Return:
-    - an int representing user's selection
-    */
-    private static int getIntInput(String prompt, int min, int max) {
-        int input;
-        while (true) {
-            System.out.println(prompt);
-            if (scanner.hasNextInt()) {
-                input = scanner.nextInt();
-                scanner.nextLine();  // Consume the newline
-                if (input >= min && input <= max) {
-                    return input;  // Return the valid input
-                } else {
-                    System.out.println("Please enter a number between " + min + " and " + max + ".");
-                }
-            } else {
-                System.out.println("Invalid input, please enter a valid integer.");
-                scanner.next();  // Consume the invalid input
-            }
-        }
     }
 
     /*
@@ -200,36 +144,6 @@ public class UserIO {
     }
 
     /*
-    Prompts user for question to and collects an double response
-
-    Parameters:
-    - prompt - prompt to display to user
-    - min - minimum double selection
-    - max - maximum double selection
-
-    Return:
-    - a double representing user's selection
-    */
-    private static double getDoubleInput(String prompt, double min, double max) {
-        double input;
-        while (true){
-            System.out.println(prompt);
-            if(scanner.hasNextFloat()){
-                input = scanner.nextFloat();
-                scanner.nextLine(); // Consume new line
-                if(input > min && input <= max){
-                    return input;
-                } else{
-                    System.out.println("Please enter a number between " + min + " and " + max + ".");
-                }
-            } else {
-                System.out.println("Invalid input, please enter a valid input.");
-                scanner.next();  // Consume the invalid input
-            }
-        }
-    }
-
-    /*
     Prompts user for questions, and collects response to be saved in
     a TestingSettings data structure.
 
@@ -245,7 +159,7 @@ public class UserIO {
         String trainedWeightFilePath = getValidFile(trainedWeightsPrompt);
         netTestingSettings.trainedWeightsFilePath = trainedWeightFilePath;
 
-        // Get training data file name
+        // Get testing data file name
         String testingFilePrompt = "\nEnter the testing file name: ";
         String testingFilePath = getValidFile(testingFilePrompt);
         netTestingSettings.testingDataFilePath = testingFilePath;
