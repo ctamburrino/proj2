@@ -17,7 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.random;
+import java.util.Random;
 import java.lang.StringBuilder;
 
 public class NeuralNet {
@@ -104,7 +104,7 @@ public class NeuralNet {
         }
     }
 
-    public static int calculateYIn(int[][] weightMatrix, int[] biasWeights, int[] inputSignals, int index) {
+    public static int calculateYIn(int[][] weightMatrix, int[] inputSignals, int index, int[] yOut) {
     /*
     This method calculates the y in value for the corresponding pattern.
 
@@ -117,15 +117,15 @@ public class NeuralNet {
     Return:
     - int representing computed YIn
     */
-        int computedYIn;
+        int computedYIn = inputSignals[index];
         for (int i = 0; i < inputSignals.length; i++) {
-            computedYIn += inputSignals[i] * weightMatrix[i][outputNode];
+            computedYIn += yOut[i] * weightMatrix[i][index];
         }
         return computedYIn;
     }
 
 
-    public static int applyActivationFunction(int yIn) {
+    public static int applyActivationFunction(int yIn, int yOut) {
     /*
     Applies activation function to value
 
@@ -140,7 +140,7 @@ public class NeuralNet {
         } else if(yIn < 0){
             return -1;
         } else {
-            return yIn;
+            return yOut;
         }
     }
 
@@ -245,9 +245,9 @@ public class NeuralNet {
             int[] inputSignals = sample.getPixelArray();
             int[] yOut = inputSignals;
             for (int outputNode = 0; outputNode < numOutputNodes; outputNode++) {        
-                int randomIndex = randomSample.get(random.nextInt(randomSample.size))
-                yIn[randomIndex] = calculateYIn(trainedWeightMatrix, inputSignals, randomIndex);
-                yOut[outputNode] = applyActivationFunction(yIn[outputNode], thetaThreshold);
+                int randomIndex = randomSample.get(random.nextInt(randomSample.size));
+                yIn[randomIndex] = calculateYIn(trainedWeightMatrix, inputSignals, randomIndex, yOut);
+                yOut[outputNode] = applyActivationFunction(yIn[randomIndex], yOut[randomIndex]);
             }
             netClassifications[sampleNum] = yOut;
         }
