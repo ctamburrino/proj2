@@ -8,9 +8,8 @@
  * - David Kujawinski
  * - Dinh Troung
  * 
- * Date Last Modified: 3/7/2025
+ * Date Last Modified: 4/3/2025
  */
-
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -23,191 +22,71 @@ import java.lang.StringBuilder;
 public class NeuralNet {
     public static boolean train(TrainingSettings netTrainingSettings){
     /*
-    Creates neural net and performs perceptron learning rule based on information
+    Creates neural net and performs hebb training rule based on information
     provided by user.
 
     Parameters:
     -Training Settings netTrainingSettings: Data structure that holds training information provided by user
 
     Return:
-    - int representing number of epochs of training occured.
+    - boolean representing training occured successfully.
     */
         // Get dataset
         List<DataSample> dataset = netTrainingSettings.dataset;
 
         // Create net architecture from first data sample in dataset
         DataSample firstSample = dataset.get(0);
-        int numInputNodes = firstSample.getRowDimension() * firstSample.getColumnDimension();
-        int numOutputNodes = firstSample.getOutputDimension();
+        int numNodes = firstSample.getRowDimension() * firstSample.getColumnDimension();
 
-        // Weight Matrices initialized with zero values by default
-        int[][] weightMatrix = new int[numInputNodes][numOutputNodes];
-        int[] biasWeights = new int[numOutputNodes];
+        // Weight Matrices initialized with zero values
+        int[][] weightMatrix = new int[numNodes][numNodes];
 
-        // Create training variables
-        int learningRate = netTrainingSettings.learningRate;
-        int thetaThreshold = netTrainingSettings.thetaThreshold;
-
-        // Set weights to random values if selected by user
-        if (!netTrainingSettings.setWeightsToZero){
-            // Initialize bias weights
-            initializeWeightsRandomValues(biasWeights);
-
-            // Initialize node weights
-            for (int i = 0; i < numInputNodes; i++){
-                initializeWeightsRandomValues(weightMatrix[i]);
-            }
+        for (DataSample sample : dataset){
+            updateWeightMatrix(weightMatrix, sample.getPixelArray());
         }
-
-        // Perform training algorithm
-        int[] yIn = new int[numOutputNodes];
-        int[] yOut = new int[numOutputNodes];
-        boolean converged = false;
-        int epochNum = 0;
-        while (!converged && epochNum < netTrainingSettings.maxEpochs){
-            epochNum++;
-            boolean weightChanged = false;
-            for (DataSample sample : dataset){
-                int[] inputSignals = sample.getPixelArray();
-                int[] targetOutputs = sample.getOutputVector();
-                for (int outputNode = 0; outputNode < numOutputNodes; outputNode++) {
-                    yIn[outputNode] = calculateYIn(weightMatrix, biasWeights, inputSignals, outputNode);
-                    yOut[outputNode] = applyActivationFunction(yIn[outputNode], thetaThreshold);
-
-                    if (yOut[outputNode] != targetOutputs[outputNode]){
-                        weightChanged = updateWeights(weightMatrix, biasWeights, inputSignals, targetOutputs, learningRate, outputNode, netTrainingSettings.weightChangeThreshold);
-                        //weightChanged = true;
-                    }
-                }
-            }
-            if (weightChanged == false){
-                converged = true;
-            }
-        }
-        // If epochNum stopped while loop
-        if (!converged){
-            System.out.println("Training reached max epochs: " + netTrainingSettings.maxEpochs + "  before converging");
-        }
-        saveWeightsToFile(weightMatrix, biasWeights, netTrainingSettings.trainedWeightsFile, netTrainingSettings.thetaThreshold);
+        saveWeightsToFile(weightMatrix, netTrainingSettings.trainedWeightsFile);
         return true;
     }
 
-    public static void initializeWeightsRandomValues(int[] weights) {
+    public static void updateWeightMatrix(int[][] weightMatrix, int[] sampleVector){
     /*
-    Fills an array with random values in range -0.5 to 0.5 to initialize weights.
+    Performs outer product of sampleVector with itself, and adds values to weight matrix.
+    If on a diagonal entry of the matrix, skips update, and keeps value at 0.
 
     Parameters:
-    -weights: array of weights to be filled.
+    - int[][] weightMatrix - current weight matrix
+    - int[] sampleVector - current sample vector
     */
-        for (int i = 0; i < weights.length; i++) {
-            weights[i] = (int) (Math.random() - 0.5);
-        }
-    }
-
-    public static int calculateYIn(int[][] weightMatrix, int[] inputSignals, int index, int[] yOut) {
-    /*
-    This method calculates the y in value for the corresponding pattern.
-
-    Parameters:
-    - int[][] weightMatrix: Matrix of current weight values
-    - int[] biasWeights: Array of current bias weight values
-    - int[] inputSignals: pixels of the current sample
-    - int outputNode: current outputNode being trained for
-
-    Return:
-    - int representing computed YIn
-    */
-        int computedYIn = inputSignals[index];
-        for (int i = 0; i < inputSignals.length; i++) {
-            computedYIn += yOut[i] * weightMatrix[i][index];
-        }
-        return computedYIn;
-    }
-
-
-    public static int applyActivationFunction(int yIn, int yOut) {
-    /*
-    Applies activation function to value
-
-    Parameters:
-    - int yIn: value to be apply activation function on
-
-    Return:
-    int representing output of function
-    */
-        if (yIn > 0) {
-            return 1;
-        } else if(yIn < 0){
-            return -1;
-        } else {
-            return yOut;
-        }
-    }
-
-
-    public static boolean updateWeights(int[][] weightMatrix, int[] biasWeights, int[] inputSignals, int[] targetOutputs, int learningRate, int outputNode, int weightChangeThreshold) {
-    /*
-    Updates weight according to weight change formula, if calculated weight delta 
-    is greater than the user specificed weight change threshold value.
-
-    Parameters:
-    - int[][] weightMatrix: Matrix of current weight values
-    - int[] biasWeights: Array of current bias weight values
-    - int[] inputSignals: pixels of the current sample
-    - int[] targetOutputs: target values of the current sample
-    - int learningRate: alpha learning rate specified by user
-    - int outputNode: used to update correct column of weights
-    - int weightChangeThreshold: threshold to stabilize weight change
-    */
-        boolean greaterThanChangeThreshold = false;
-        // Update node weights
-        for (int i = 0; i < inputSignals.length; i++) {
-            inputSignals[i]
-            int weightDelta = learningRate * targetOutputs[outputNode] * inputSignals[i];
-            if (weightDelta > weightChangeThreshold){
-                weightMatrix[i][outputNode] += weightDelta;
-                greaterThanChangeThreshold = true;
+        int numElements = sampleVector.length;
+        for(int i = 0; i < numElements; i++){
+            for(int j = 0; j < numElements; j++){
+                if (i != j){
+                    weightMatrix[i][j] += sampleVector[i] * sampleVector[j];
+                }
             }
         }
-        // Update bias weight
-        int biasWeightDelta = learningRate * targetOutputs[outputNode];
-        if(biasWeightDelta > weightChangeThreshold){
-            biasWeights[outputNode] += biasWeightDelta;
-            greaterThanChangeThreshold = true;
-        }
-        return greaterThanChangeThreshold;
     }
 
-    public static void saveWeightsToFile(int[][] weightMatrix, int[]biasWeights, String trainedWeightsFileName, int thetaThreshold){
+    public static void saveWeightsToFile(int[][] weightMatrix, String trainedWeightsFileName){
     /*
     Saves trained weight values to output file
 
     Parameters:
     - int[][] weightMatrix: Matrix of current weight values
-    - int[] biasWeights: Array of current bias weight values
     - String trainedWeightsFileName: User specified output file name
-    - int thetaThreshold: theta value used in training to be carried over to testing
     */
         // Save Node weights
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(trainedWeightsFileName))) {
-            writer.write(weightMatrix.length + "\t\t// Number of input nodes\n");
-            writer.write(weightMatrix[0].length + "\t\t//Number of output nodes\n");
-            writer.write(thetaThreshold + "\t\t// Theta Threshold used for training\n\n");
+            writer.write(weightMatrix.length + "\t\t// Number of nodes\n");
 
             for (int[] row : weightMatrix){
                 for (int j = 0; j < row.length; j++){
-                    writer.write(String.format("%.6f", row[j]));
+                    writer.write(row[j]);
                     if (j < row.length - 1) writer.write(" ");
                 }
                 writer.newLine();
             }
-            writer.newLine();
 
-            // Save bias weights
-            for (int j = 0; j< biasWeights.length; j++){
-                writer.write(String.format("%.6f", biasWeights[j]));
-                if (j < biasWeights.length - 1) writer.write(" ");
-            }
             System.out.println("Weights saved successfully to " + trainedWeightsFileName + "\n");
         } catch (IOException e){
             e.printStackTrace();
@@ -257,45 +136,46 @@ public class NeuralNet {
         saveResultsToFile(netClassifications, netTestingSettings.testingResultsOutputFilePath);
     }
 
-    //enumerated type to help identify the label based on the output vector
-    public enum Label{
-        //creating teh Lables based on
-        A(new int[]{1, -1, -1, -1, -1, -1, -1}),
-        B(new int[]{-1, 1, -1, -1, -1, -1, -1}),
-        C(new int[]{-1, -1, 1, -1, -1, -1, -1}),
-        D(new int[]{-1, -1, -1, 1, -1, -1, -1}),
-        E(new int[]{-1, -1, -1, -1, 1, -1, -1}),
-        J(new int[]{-1, -1, -1, -1, -1, 1, -1}),
-        K(new int[]{-1, -1, -1, -1, -1, -1, 1});
-        //instance variable
-        private final int[] output;
-        /*initialization function
-        * Parameters:
-        * int[] output - the output vector associated with the label
+    public static int calculateYIn(int[][] weightMatrix, int[] inputSignals, int index, int[] yOut) {
+        /*
+        This method calculates the y in value for the corresponding pattern.
+    
+        Parameters:
+        - int[][] weightMatrix: Matrix of current weight values
+        - int[] biasWeights: Array of current bias weight values
+        - int[] inputSignals: pixels of the current sample
+        - int outputNode: current outputNode being trained for
+    
+        Return:
+        - int representing computed YIn
         */
-        Label(int[] output){
-            this.output = output;
+            int computedYIn = inputSignals[index];
+            for (int i = 0; i < inputSignals.length; i++) {
+                computedYIn += yOut[i] * weightMatrix[i][index];
+            }
+            return computedYIn;
+        }
+    
+    
+        public static int applyActivationFunction(int yIn, int yOut) {
+        /*
+        Applies activation function to value
+    
+        Parameters:
+        - int yIn: value to be apply activation function on
+    
+        Return:
+        int representing output of function
+        */
+            if (yIn > 0) {
+                return 1;
+            } else if(yIn < 0){
+                return -1;
+            } else {
+                return yOut;
+            }
         }
 
-        /*
-        * Method that returns the corresponding label based on the given output array.
-        *
-        * Parameters:
-        * int[] givenOutput - an individual output array from testing
-        *
-        * Return:
-        * Label object - the corresponding label to the output array
-        * null - if the output vector does not correspond with any of the labels
-        *
-        * */
-        public static Label getLabel(int[] givenOutput){
-            for(Label label : Label.values()){
-                if(Arrays.equals(givenOutput, label.output)){
-                    return label;
-                }
-            }
-            return null;
-        }
 
         /*
         * a method that turns an array into a string without brackets or commas, with each element being space separated
