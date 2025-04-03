@@ -63,7 +63,7 @@ public class UserIO {
                     netTestingSettings = getTestingSettings(netTestingSettings);
                     netTestingSettings.dataset = FileParser.parseDataFile(netTestingSettings.testingDataFilePath);
                     FileParser.parseTrainedWeights(netTestingSettings);
-                    NeuralNet.test(netTestingSettings);
+                    //NeuralNet.test(netTestingSettings);
                     //System.out.println(testingResults);
                     return 2;
                 // User quits program
