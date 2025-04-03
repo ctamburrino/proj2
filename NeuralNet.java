@@ -17,10 +17,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.random;
 import java.lang.StringBuilder;
 
 public class NeuralNet {
-    public static int train(TrainingSettings netTrainingSettings){
+    public static boolean train(TrainingSettings netTrainingSettings){
     /*
     Creates neural net and performs perceptron learning rule based on information
     provided by user.
@@ -40,12 +41,12 @@ public class NeuralNet {
         int numOutputNodes = firstSample.getOutputDimension();
 
         // Weight Matrices initialized with zero values by default
-        double[][] weightMatrix = new double[numInputNodes][numOutputNodes];
-        double[] biasWeights = new double[numOutputNodes];
+        int[][] weightMatrix = new int[numInputNodes][numOutputNodes];
+        int[] biasWeights = new int[numOutputNodes];
 
         // Create training variables
-        double learningRate = netTrainingSettings.learningRate;
-        double thetaThreshold = netTrainingSettings.thetaThreshold;
+        int learningRate = netTrainingSettings.learningRate;
+        int thetaThreshold = netTrainingSettings.thetaThreshold;
 
         // Set weights to random values if selected by user
         if (!netTrainingSettings.setWeightsToZero){
@@ -59,7 +60,7 @@ public class NeuralNet {
         }
 
         // Perform training algorithm
-        double[] yIn = new double[numOutputNodes];
+        int[] yIn = new int[numOutputNodes];
         int[] yOut = new int[numOutputNodes];
         boolean converged = false;
         int epochNum = 0;
@@ -88,10 +89,10 @@ public class NeuralNet {
             System.out.println("Training reached max epochs: " + netTrainingSettings.maxEpochs + "  before converging");
         }
         saveWeightsToFile(weightMatrix, biasWeights, netTrainingSettings.trainedWeightsFile, netTrainingSettings.thetaThreshold);
-        return epochNum;
+        return true;
     }
 
-    public static void initializeWeightsRandomValues(double[] weights) {
+    public static void initializeWeightsRandomValues(int[] weights) {
     /*
     Fills an array with random values in range -0.5 to 0.5 to initialize weights.
 
@@ -99,24 +100,24 @@ public class NeuralNet {
     -weights: array of weights to be filled.
     */
         for (int i = 0; i < weights.length; i++) {
-            weights[i] = (double) (Math.random() - 0.5);
+            weights[i] = (int) (Math.random() - 0.5);
         }
     }
 
-    public static double calculateYIn(double[][] weightMatrix, double[] biasWeights, int[] inputSignals, int outputNode) {
+    public static int calculateYIn(int[][] weightMatrix, int[] biasWeights, int[] inputSignals, int index) {
     /*
     This method calculates the y in value for the corresponding pattern.
 
     Parameters:
-    - double[][] weightMatrix: Matrix of current weight values
-    - double[] biasWeights: Array of current bias weight values
+    - int[][] weightMatrix: Matrix of current weight values
+    - int[] biasWeights: Array of current bias weight values
     - int[] inputSignals: pixels of the current sample
     - int outputNode: current outputNode being trained for
 
     Return:
-    - double representing computed YIn
+    - int representing computed YIn
     */
-        double computedYIn = biasWeights[outputNode];
+        int computedYIn;
         for (int i = 0; i < inputSignals.length; i++) {
             computedYIn += inputSignals[i] * weightMatrix[i][outputNode];
         }
@@ -124,13 +125,13 @@ public class NeuralNet {
     }
 
 
-    public static int applyActivationFunction(double yIn, double thetaThreshold) {
+    public static int applyActivationFunction(int yIn, int thetaThreshold) {
     /*
     Applies activation function to value
 
     Parameters:
-    - double yIn: value to be apply activation function on
-    - double thetaThreshold: user specificed threshold value for activation function
+    - int yIn: value to be apply activation function on
+    - int thetaThreshold: user specificed threshold value for activation function
 
     Return:
     int representing output of function
@@ -145,31 +146,32 @@ public class NeuralNet {
     }
 
 
-    public static boolean updateWeights(double[][] weightMatrix, double[] biasWeights, int[] inputSignals, int[] targetOutputs, double learningRate, int outputNode, double weightChangeThreshold) {
+    public static boolean updateWeights(int[][] weightMatrix, int[] biasWeights, int[] inputSignals, int[] targetOutputs, int learningRate, int outputNode, int weightChangeThreshold) {
     /*
     Updates weight according to weight change formula, if calculated weight delta 
     is greater than the user specificed weight change threshold value.
 
     Parameters:
-    - double[][] weightMatrix: Matrix of current weight values
-    - double[] biasWeights: Array of current bias weight values
+    - int[][] weightMatrix: Matrix of current weight values
+    - int[] biasWeights: Array of current bias weight values
     - int[] inputSignals: pixels of the current sample
     - int[] targetOutputs: target values of the current sample
-    - double learningRate: alpha learning rate specified by user
+    - int learningRate: alpha learning rate specified by user
     - int outputNode: used to update correct column of weights
-    - double weightChangeThreshold: threshold to stabilize weight change
+    - int weightChangeThreshold: threshold to stabilize weight change
     */
         boolean greaterThanChangeThreshold = false;
         // Update node weights
         for (int i = 0; i < inputSignals.length; i++) {
-            double weightDelta = learningRate * targetOutputs[outputNode] * inputSignals[i];
+            inputSignals[i]
+            int weightDelta = learningRate * targetOutputs[outputNode] * inputSignals[i];
             if (weightDelta > weightChangeThreshold){
                 weightMatrix[i][outputNode] += weightDelta;
                 greaterThanChangeThreshold = true;
             }
         }
         // Update bias weight
-        double biasWeightDelta = learningRate * targetOutputs[outputNode];
+        int biasWeightDelta = learningRate * targetOutputs[outputNode];
         if(biasWeightDelta > weightChangeThreshold){
             biasWeights[outputNode] += biasWeightDelta;
             greaterThanChangeThreshold = true;
@@ -177,15 +179,15 @@ public class NeuralNet {
         return greaterThanChangeThreshold;
     }
 
-    public static void saveWeightsToFile(double[][] weightMatrix, double[]biasWeights, String trainedWeightsFileName, double thetaThreshold){
+    public static void saveWeightsToFile(int[][] weightMatrix, int[]biasWeights, String trainedWeightsFileName, int thetaThreshold){
     /*
     Saves trained weight values to output file
 
     Parameters:
-    - double[][] weightMatrix: Matrix of current weight values
-    - double[] biasWeights: Array of current bias weight values
+    - int[][] weightMatrix: Matrix of current weight values
+    - int[] biasWeights: Array of current bias weight values
     - String trainedWeightsFileName: User specified output file name
-    - double thetaThreshold: theta value used in training to be carried over to testing
+    - int thetaThreshold: theta value used in training to be carried over to testing
     */
         // Save Node weights
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(trainedWeightsFileName))) {
@@ -193,7 +195,7 @@ public class NeuralNet {
             writer.write(weightMatrix[0].length + "\t\t//Number of output nodes\n");
             writer.write(thetaThreshold + "\t\t// Theta Threshold used for training\n\n");
 
-            for (double[] row : weightMatrix){
+            for (int[] row : weightMatrix){
                 for (int j = 0; j < row.length; j++){
                     writer.write(String.format("%.6f", row[j]));
                     if (j < row.length - 1) writer.write(" ");
@@ -221,32 +223,38 @@ public class NeuralNet {
     -Testing SettingsnetTestingSettings: Data structure that holds testing information provided by user.
     */
         // Load trained weight matrices from file
-        double [][] trainedWeightMatrix = netTestingSettings.trainedWeightMatrix;
-        double [] trainedBiasWeights = netTestingSettings.trainedBiasWeights;
+        int [][] trainedWeightMatrix = netTestingSettings.trainedWeightMatrix;
 
         // Get dataset to test
         List<DataSample> dataset = netTestingSettings.dataset;
-        double thetaThreshold = netTestingSettings.thetaThreshold;
 
         // Create net architecture from first data sample in dataset
         DataSample firstSample = dataset.get(0);
         int numOutputNodes = firstSample.getOutputDimension();
         int numSamples = dataset.size();
+        List<int> randomSample = new List<int>[numOutputNodes];
+        for(int i = 0; i<numOutputNodes; i++){
+            randomSample[i] = i;
+        }
+        Random random = new Random();
 
         // Deploy Neural Net
         int[][] netClassifications = new int[numSamples][numOutputNodes];
         for(int sampleNum = 0; sampleNum < dataset.size(); sampleNum++){
-            double[] yIn = new double[numOutputNodes];
-            int[] yOut = new int[numOutputNodes];
+            int[] yIn = new int[numOutputNodes];
             DataSample sample = dataset.get(sampleNum);
             int[] inputSignals = sample.getPixelArray();
-
-            for (int outputNode = 0; outputNode < numOutputNodes; outputNode++) {
-                yIn[outputNode] = calculateYIn(trainedWeightMatrix, trainedBiasWeights, inputSignals, outputNode);
+            int[] yOut = inputSignals;
+            for (int outputNode = 0; outputNode < numOutputNodes; outputNode++) {        
+                int randomIndex = randomSample.get(random.nextInt(randomSample.size))
+                yIn[randomIndex] = calculateYIn(trainedWeightMatrix, inputSignals, randomIndex);
                 yOut[outputNode] = applyActivationFunction(yIn[outputNode], thetaThreshold);
             }
             netClassifications[sampleNum] = yOut;
         }
+
+
+        
         saveResultsToFile(netClassifications, netTestingSettings.testingResultsOutputFilePath);
     }
 
