@@ -56,9 +56,15 @@ public class FileParser {
                 int pixelArrayIndex = 0;
                 for (int j = 0; j < inputRows; j++){
                     line = reader.readLine();
-                    String[] parts = line.trim().split("\\s+");
-                    for (int k = 0; k < inputColumns; k ++){
-                        if (Integer.parseInt(parts[k]) == 0){
+                    if (line == null){
+                        for (int k = 0; k < inputColumns; k++){
+                            pixelArray[pixelArrayIndex] = -1;
+                            pixelArrayIndex++;
+                        }
+                    }else{
+                        for (int k = 0; k < inputColumns; k++){
+                            char c = line.charAt(k);
+                            if (c == 'O'){
                             pixelArray[pixelArrayIndex] = 1;
                         }else{
                             pixelArray[pixelArrayIndex] = -1;
@@ -66,8 +72,7 @@ public class FileParser {
                         pixelArrayIndex++;
                     }
                 }
-                // Consume blank line
-                reader.readLine();
+            }
                 
                 // Create data sample and store in dataset
                 DataSample newDataSample = createDataSample(inputRows, inputColumns);
