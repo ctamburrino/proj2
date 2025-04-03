@@ -15,6 +15,6 @@ public class TestingSettings {
     String trainedWeightsFilePath;
     String testingDataFilePath;
     String testingResultsOutputFilePath;
-    double[][] trainedWeightMatrix;
+    int[][] trainedWeightMatrix;
     List<DataSample> dataset;
 }

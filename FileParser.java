@@ -18,7 +18,6 @@ import java.util.List;
 public class FileParser {
     static int inputRows;
     static int inputColumns;
-    static int outputDimensions;
     static int numSamples;
 
     public static List<DataSample> parseDataFile(String dataFileName){
@@ -35,7 +34,7 @@ public class FileParser {
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFileName))){
             String line;
             // Parse header lines
-            for (int i = 0;i < 4; i++){
+            for (int i = 0; i < 3; i++){
                 line = reader.readLine();
                 String[] parts = line.trim().split("\\s+");
                 int value = Integer.parseInt(parts[0]);
@@ -43,11 +42,9 @@ public class FileParser {
                 switch(i) {
                     case 0: inputRows = value;
                     case 1: inputColumns = value;
-                    case 2: outputDimensions = value;
                     case 3: numSamples = value;
                 }
             }
-
             // Parse Samples
             for (int i = 0; i < numSamples; i++){
                 int[] pixelArray = new int[inputRows * inputColumns];
@@ -67,24 +64,10 @@ public class FileParser {
                 }
                 // Consume blank line
                 reader.readLine();
-
-                // Parse output vector
-                String[] parts = reader.readLine().trim().split("\\s+");
-                int[] outputVector = new int[outputDimensions];
-                int outputVectorIndex = 0;
-                for (int k = 0; k < outputDimensions; k++){
-                    outputVector[outputVectorIndex] = Integer.parseInt(parts[k]);
-                    outputVectorIndex++;
-                }
-
-                // Parse label
-                char label = reader.readLine().charAt(0);
                 
                 // Create data sample and store in dataset
-                DataSample newDataSample = createDataSample(inputRows, inputColumns, outputDimensions);
+                DataSample newDataSample = createDataSample(inputRows, inputColumns);
                 newDataSample.setPixelArray(pixelArray);
-                newDataSample.setOutputVector(outputVector);
-                newDataSample.setLabel(label);
                 dataset.add(newDataSample);
             }
             return dataset;
@@ -94,7 +77,7 @@ public class FileParser {
         } 
     }
 
-    public static DataSample createDataSample(int rows, int columns, int outputDimension){
+    public static DataSample createDataSample(int rows, int columns){
     /*
     Creates data sample object
 
@@ -106,7 +89,7 @@ public class FileParser {
     Return:
     DataSample representing one sample of data
     */
-        DataSample newDataSample = new DataSample(rows, columns, outputDimension);
+        DataSample newDataSample = new DataSample(rows, columns);
         return newDataSample;
     }
 
@@ -126,43 +109,22 @@ public class FileParser {
             String[] parts = line.trim().split("\\s+");
             int numInputNodes = Integer.parseInt(parts[0]);
 
-            // Parse number of output nodes
-            line = reader.readLine();
-            parts = line.trim().split("\\s+");
-            int numOutputNodes = Integer.parseInt(parts[0]);
-
-            // Parse theta threshold value
-            line = reader.readLine();
-            parts = line.trim().split("\\s+");
-            netTestingSettings.thetaThreshold = Double.parseDouble(parts[0]);
-
             // Consume blank line
             reader.readLine();
 
             // Create weight data structures
-            double[][] weightMatrix = new double[numInputNodes][numOutputNodes];
-            double[] biasWeights = new double[numOutputNodes];
+            int[][] weightMatrix = new int[numInputNodes][numInputNodes];
 
             // Parse node weights
             for (int rowNum = 0; rowNum < numInputNodes; rowNum++){
                 line = reader.readLine();
                 parts = line.trim().split("\\s+");
-                for (int columnNum = 0; columnNum < numOutputNodes; columnNum++){
-                    weightMatrix[rowNum][columnNum] = Double.parseDouble(parts[columnNum]);
+                for (int columnNum = 0; columnNum < numInputNodes; columnNum++){
+                    weightMatrix[rowNum][columnNum] = Integer.parseInt(parts[columnNum]);
                 }
             }
             reader.readLine();
             netTestingSettings.trainedWeightMatrix = weightMatrix;
-
-            // Consume blank line
-            line = reader.readLine();
-
-            // Parse bias weights
-            parts = line.trim().split("\\s+");
-            for (int columnNum = 0; columnNum < numOutputNodes; columnNum++){
-                biasWeights[columnNum] = Double.parseDouble(parts[columnNum]);
-            }
-            netTestingSettings.trainedBiasWeights = biasWeights;
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         } 
