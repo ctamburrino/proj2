@@ -17,4 +17,6 @@ public class TestingSettings {
     String testingResultsOutputFilePath;
     int[][] trainedWeightMatrix;
     List<DataSample> dataset;
+    int numNodes;
+    int[][] trainingSampleImages;
 }
