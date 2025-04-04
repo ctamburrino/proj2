@@ -134,6 +134,7 @@ public class FileParser {
             }
             reader.readLine();
             netTestingSettings.trainedWeightMatrix = weightMatrix;
+            netTestingSettings.numNodes = numInputNodes;
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         } 
