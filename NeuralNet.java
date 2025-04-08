@@ -1,14 +1,14 @@
 /*
  * This program implements the neural net portion of the program.  It has methods
- * to train the net and save weights to an output file, and test the neural net on
- * a dataset and save the results to an output file.
+ * to train the net, save weights to an output file, test the neural net on
+ * a dataset and save those results to an output file.
  * 
  * Authors:
  * - Cory Tamburrino
  * - David Kujawinski
  * - Dinh Troung
  * 
- * Date Last Modified: 4/3/2025
+ * Date Last Modified: 4/8/2025
  */
 
 import java.io.BufferedWriter;
@@ -22,11 +22,11 @@ import java.util.List;
 public class NeuralNet {
     public static boolean train(TrainingSettings netTrainingSettings){
     /*
-    Creates neural net and performs hebb training rule based on information
-    provided by user.
+    Creates neural net and and adjusts weights based on images provided
+    by the training sample.
 
     Parameters:
-    -Training Settings netTrainingSettings: Data structure that holds training information provided by user
+    -Training Settings netTrainingSettings: Data structure that holds training information for the data samples.
 
     Return:
     - boolean representing training occured successfully.
@@ -41,9 +41,12 @@ public class NeuralNet {
         // Weight Matrices initialized with zero values
         int[][] weightMatrix = new int[numNodes][numNodes];
 
+        //Update the weight matrix for each sample
         for (DataSample sample : dataset){
             updateWeightMatrix(weightMatrix, sample.getPixelArray());
         }
+
+        //Save weights to an ouput file
         saveWeightsToFile(weightMatrix, netTrainingSettings.trainedWeightsFile);
         return true;
     }
@@ -60,6 +63,8 @@ public class NeuralNet {
         int numElements = sampleVector.length;
         for(int i = 0; i < numElements; i++){
             for(int j = 0; j < numElements; j++){
+
+                //only change weights if not on the primary diagonal
                 if (i != j){
                     weightMatrix[i][j] += sampleVector[i] * sampleVector[j];
                 }
@@ -95,10 +100,13 @@ public class NeuralNet {
 
     public static int[][] test(TestingSettings netTestingSettings){
     /*
-    Tests neural net with dataset and trained weights.
+    Tests neural net with dataset and trained weights using Hopfield Auto Net Algorithm.
 
     Parameters:
     -Testing Settings netTestingSettings: Data structure that holds testing information provided by user.
+
+    Return:
+    - int[][] of the classified samples.
     */
         // Load trained weight matrices from file
         int [][] trainedWeightMatrix = netTestingSettings.trainedWeightMatrix;
@@ -108,66 +116,59 @@ public class NeuralNet {
         List<DataSample> dataset = netTestingSettings.dataset;
         int[][] netClassifications = new int[dataset.size()][numNodes];
 
+        //Initialize sample number and go through each sample 
         int sampleNum = 0;
         for (DataSample sample : dataset){
+
+            //Initialize converged, input array, and output array for each sample run. 
             boolean converged = false;
             int[] xArray = sample.getPixelArray();
             int[] yArray = Arrays.copyOf(xArray, xArray.length);
+
+            //Create list of indicies that will be used to randomly select nodes
             List<Integer> nodes = new ArrayList<>(numNodes);
             for (int i = 0; i < numNodes; i++){
                 nodes.add(i);
             }
+
+
             while(!converged){
+                //Randomize the indicies
                 Collections.shuffle(nodes);
+
+                //Set ouput array equal to input array 
                 yArray = Arrays.copyOf(xArray, xArray.length);
                 boolean activationChanged = false;
+
                 for (int i = 0; i < numNodes; i++){
-                    int index = nodes[i];
+                    //Get random index
+                    int index = nodes.get(i);
+
+                    //Calculate yIn and yOut
                     int yIn = calculateYIn(trainedWeightMatrix, xArray, index, yArray);
                     int yOut = applyActivationFunction(yIn, yArray[index]);
-                        if (yArray[index] != yOut){
-                            yArray[index] = yOut;
-                            activationChanged = true;
-                        }
+                    
+                    //Check for change in output values
+                    if (yArray[index] != yOut){
+                        yArray[index] = yOut;
+                        activationChanged = true;
                     }
+                }
+
+                //Check for convergence, if nothing set input array equal to 
+                //output array and start over
                 if (activationChanged == false){
                     converged = true;
                 }else{
                     xArray = Arrays.copyOf(yArray, yArray.length);;
                 }
             }
+            //Retrieve classification and move to next sample
             netClassifications[sampleNum] = yArray;
             sampleNum++;
         }
 
-        // // Create net architecture from first data sample in dataset
-        // DataSample firstSample = dataset.get(0);
-        // int numOutputNodes = firstSample.getOutputDimension();
-        // int numSamples = dataset.size();
-        // List<int> randomSample = new List<int>[numOutputNodes];
-        // for(int i = 0; i<numOutputNodes; i++){
-        //     randomSample[i] = i;
-        // }
-        // Random random = new Random();
-
-        // // Deploy Neural Net
-
-        // for(int sampleNum = 0; sampleNum < dataset.size(); sampleNum++){
-        //     int[] yIn = new int[numOutputNodes];
-        //     DataSample sample = dataset.get(sampleNum);
-        //     int[] inputSignals = sample.getPixelArray();
-        //     int[] yOut = inputSignals;
-        //     for (int outputNode = 0; outputNode < numOutputNodes; outputNode++) {        
-        //         int randomIndex = randomSample.get(random.nextInt(randomSample.size));
-        //         yIn[randomIndex] = calculateYIn(trainedWeightMatrix, inputSignals, randomIndex, yOut);
-        //         yOut[outputNode] = applyActivationFunction(yIn[randomIndex], yOut[randomIndex]);
-        //     }
-        //     netClassifications[sampleNum] = yOut;
-        // }
-
         return netClassifications;
-        
-        //saveResultsToFile(netClassifications, netTestingSettings.testingResultsOutputFilePath);
     }
 
     public static int calculateYIn(int[][] weightMatrix, int[] xArray, int neuronNum, int[] yArray) {
@@ -176,9 +177,9 @@ public class NeuralNet {
     
         Parameters:
         - int[][] weightMatrix: Matrix of current weight values
-        - int[] biasWeights: Array of current bias weight values
-        - int[] inputSignals: pixels of the current sample
-        - int outputNode: current outputNode being trained for
+        - int[] xArray: Array of current inpute values
+        - int neuronNum: the index number of the current node being tested
+        - int[] yArray: Array of current output values
     
         Return:
         - int representing computed YIn
@@ -197,6 +198,7 @@ public class NeuralNet {
     
         Parameters:
         - int yIn: value to be apply activation function on
+        - int prevY: the current output value prior to activation
     
         Return:
         int representing output of function
