@@ -110,7 +110,6 @@ public class NeuralNet {
 
         int sampleNum = 0;
         for (DataSample sample : dataset){
-            sampleNum++;
             boolean converged = false;
             int[] xArray = sample.getPixelArray();
             int[] yArray = Arrays.copyOf(xArray, xArray.length);
@@ -118,15 +117,16 @@ public class NeuralNet {
             for (int i = 0; i < numNodes; i++){
                 nodes.add(i);
             }
-            Collections.shuffle(nodes);
             while(!converged){
+                Collections.shuffle(nodes);
                 yArray = Arrays.copyOf(xArray, xArray.length);
                 boolean activationChanged = false;
                 for (int i = 0; i < numNodes; i++){
-                    int yIn = calculateYIn(trainedWeightMatrix, xArray, i, yArray);
-                    int yOut = applyActivationFunction(yIn, yArray[i]);
-                        if (yArray[i] != yOut){
-                            yArray[i] = yOut;
+                    int index = nodes[i];
+                    int yIn = calculateYIn(trainedWeightMatrix, xArray, index, yArray);
+                    int yOut = applyActivationFunction(yIn, yArray[index]);
+                        if (yArray[index] != yOut){
+                            yArray[index] = yOut;
                             activationChanged = true;
                         }
                     }
@@ -137,6 +137,7 @@ public class NeuralNet {
                 }
             }
             netClassifications[sampleNum] = yArray;
+            sampleNum++;
         }
 
         // // Create net architecture from first data sample in dataset
