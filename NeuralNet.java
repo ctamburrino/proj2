@@ -141,10 +141,14 @@ public class NeuralNet {
                 boolean activationChanged = false;
 
                 for (int i = 0; i < numNodes; i++){
+<<<<<<< HEAD
                     //Get random index
                     int index = nodes.get(i);
 
                     //Calculate yIn and yOut
+=======
+                    int index = nodes.get(i);
+>>>>>>> dc12418 (Changed nodes index access to .get)
                     int yIn = calculateYIn(trainedWeightMatrix, xArray, index, yArray);
                     int yOut = applyActivationFunction(yIn, yArray[index]);
                     
