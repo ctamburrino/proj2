@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserIO {
@@ -67,7 +68,7 @@ public class UserIO {
                     netTestingSettings.dataset = FileParser.parseDataFile(netTestingSettings.testingDataFilePath);
                     FileParser.parseTrainedWeights(netTestingSettings);
                     int testingResults[][] = NeuralNet.test(netTestingSettings);
-                    //saveResultsToFile(testingResults, netTestingSettings.testingResultsOutputFilePath);
+                    saveResultsToFile(testingResults, netTestingSettings.testingResultsOutputFilePath, netTestingSettings.dataset);
                     return 2;
                 // User quits program
                 case 3:
@@ -200,78 +201,65 @@ public class UserIO {
         return filePath;
     }
 
-    // public static void saveResultsToFile(int[][] classifications, String testingResultsOutputFilePath){
-    // /*
-    // Saves classification results from testing to output file specified by user
+    public static void saveResultsToFile(int[][] testingResults, String testingResultsOutputFilePath, List<DataSample> testingImages){
+    /*
+    Saves classification results from testing to output file specified by user
 
-    // Parameters:
-    // - int[][] classifications: Matrix representing classification results
-    // - String testingResultsOutputFilePath: filepath of output file specified by user
-    // */
-    //     try (BufferedWriter writer = new BufferedWriter(new FileWriter(testingResultsOutputFilePath))) {
-    //         Label[] actualOutput = Label.values();
-    //         int labelIncrement = 0;
-    //         for (int[] row : classifications){
-    //             //identifies the label it was trying to classify
-    //             Label classifiedLabel = Label.getLabel(row);
-    //             //prints out the expected result
-    //             writer.write("Actual:\n"+actualOutput[labelIncrement].toString());
-    //             writer.newLine();
-    //             //prints out what it was classified as, and Undecided if the vector was not identified
-    //             if(classifiedLabel==null){
-    //                 writer.write("Classified:\nUndecided\n"+Label.arrayToString(row));
-    //             }
-    //             else{
-    //                 writer.write("Classified:\n"+classifiedLabel.toString());
-    //             }
-    //             //increments the labels
-    //             if(labelIncrement==6)
-    //                 labelIncrement = 0;
-    //             else
-    //                 labelIncrement++;
-    //             writer.newLine();
-    //             writer.newLine();
-    //         }
-    //         writer.newLine();
-    //         writer.newLine();
-    //         writer.close();
-    //         System.out.println("Results saved successfully to " + testingResultsOutputFilePath + "\n");
-    //     } catch (IOException e){
-    //         e.printStackTrace();
-    //     }
-    // }
+    Parameters:
+    - int[][] testingResults: Matrix representing testing results
+    - String testingResultsOutputFilePath: filepath of output file specified by user
+    */
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testingResultsOutputFilePath))) {
+            for (int i = 0; i < testingResults.length; i++){
+                DataSample currentTestingSample = testingImages.get(i);
+                int[] currentTestingResult = testingResults[i];
 
-        //     /*
-        // * a method that turns an array into a string without brackets or commas, with each element being space separated
-        // *
-        // * Parameters:
-        // * int[] array - the array to be transformed
-        // *
-        // * Returns:
-        // * a String of the transformed array
-        // *
-        // * */
-        // public static String arrayToString(int[] array){
-        //     StringBuilder sb = new StringBuilder();
-        //     for(int i=0; i<array.length; i++){
-        //         sb.append(array[i]+" ");
-        //     }
-        //     return sb.toString();
-        // }
+                //print input test image
+                writer.write("Input test image:\n");
+                writer.write(arrayToString(currentTestingSample.getPixelArray(), currentTestingSample.getRowDimension()));
 
-        // /*Override the toString such that it prints out in the required format
-        // *
-        // * Parameters:
-        // * None
-        // *
-        // * Returns:
-        // * a String of the name followed by a new line and the array transformed by the arrayToString() method
-        // *
-        // * */
-        // @Override
-        // public String toString(){
-        //     return this.name()+"\n"+Label.arrayToString(this.output);
-        // }
+                //print assoicated stored image:
+                //increments the labels
+                writer.write("The associated stored image:\n");
+                writer.write(arrayToString(currentTestingResult, currentTestingSample.getRowDimension()));
+
+                writer.newLine();
+                writer.newLine();
+            }
+            writer.close();
+            System.out.println("Results saved successfully to " + testingResultsOutputFilePath + "\n");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+            /*
+        * a method that turns an array into a string without brackets or commas, with each element being space separated
+        *
+        * Parameters:
+        * int[] array - the array to be transformed
+        *
+        * Returns:
+        * a String of the transformed array
+        *
+        * */
+        public static String arrayToString(int[] samplePixelArray, int numRowsAndColumns){
+            StringBuilder sb = new StringBuilder();
+            int samplePixelArrayIndex = 0;
+            while (samplePixelArrayIndex < samplePixelArray.length){
+                for(int i = 0; i < numRowsAndColumns; i++){
+                    if(samplePixelArray[samplePixelArrayIndex] == 1){
+                        sb.append("O");
+                    } else{
+                        sb.append(" ");
+                    }
+                    samplePixelArrayIndex++;
+                }
+                sb.append("\n");
+            }
+            sb.append("\n");
+            return sb.toString();
+        }
 }
 
 
