@@ -18,5 +18,4 @@ public class TestingSettings {
     int[][] trainedWeightMatrix;
     List<DataSample> dataset;
     int numNodes;
-    int[][] trainingSampleImages;
 }
