@@ -62,7 +62,7 @@ public class FileParser {
                 int pixelArrayIndex = 0;
                 for (int j = 0; j < inputRows; j++){
                     line = reader.readLine();
-                    if (line == null){
+                    if (line.equals("")){
                         for (int k = 0; k < inputColumns; k++){
                             pixelArray[pixelArrayIndex] = -1;
                             pixelArrayIndex++;
