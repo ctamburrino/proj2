@@ -40,9 +40,15 @@ public class FileParser {
                 int value = Integer.parseInt(parts[0]);
 
                 switch(i) {
-                    case 0: inputRows = value;
-                    case 1: inputColumns = value;
-                    case 3: numSamples = value;
+                    case 0:
+                        inputRows = value;
+                        break;
+                    case 1:
+                        inputColumns = value;
+                        break;
+                    case 2:
+                        numSamples = value;
+                        break;
                 }
             }
             // Parse Samples
@@ -117,9 +123,6 @@ public class FileParser {
             line = reader.readLine();
             String[] parts = line.trim().split("\\s+");
             int numInputNodes = Integer.parseInt(parts[0]);
-
-            // Consume blank line
-            reader.readLine();
 
             // Create weight data structures
             int[][] weightMatrix = new int[numInputNodes][numInputNodes];
