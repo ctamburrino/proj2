@@ -57,9 +57,9 @@ public class UserIO {
                     netTrainingSettings = getTrainingSettings(netTrainingSettings);
                     netTrainingSettings.dataset = FileParser.parseDataFile(netTrainingSettings.trainingDataFilePath);
                     if (NeuralNet.train(netTrainingSettings)){
-                        System.out.println("Sucessfully trained Neural Net\n");
+                        System.out.println("Successfully trained Neural Net\n");
                     }else{
-                        System.out.println("Failed to execute training algorithim.");
+                        System.out.println("Failed to execute training algorithm.");
                     }
                     return 1;
                 // User selecets testing
