@@ -233,7 +233,7 @@ public class UserIO {
         }
     }
 
-            /*
+        /*
         * a method that turns an array into a string without brackets or commas, with each element being space separated
         *
         * Parameters:

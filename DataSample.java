@@ -21,6 +21,7 @@ public class DataSample {
         this.columnDimension = columns;
     }
 
+    // Getters
     public int[] getPixelArray(){
         return pixelArray;
     }
