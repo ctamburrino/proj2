@@ -1,0 +1,80 @@
+Input test image:
+  O  
+  O  
+OOOOO
+  O  
+  O  
+
+The associated stored image:
+  O  
+  O  
+OOOOO
+  O  
+  O  
+
+
+
+Input test image:
+O    
+ O   
+  O  
+   O 
+    O
+
+The associated stored image:
+O   O
+ O O 
+  O  
+ O O 
+O   O
+
+
+
+Input test image:
+O   O
+ O O 
+  O  
+ O O 
+O   O
+
+The associated stored image:
+O   O
+ O O 
+  O  
+ O O 
+O   O
+
+
+
+Input test image:
+O O O
+ O O 
+O O O
+ O O 
+O O O
+
+The associated stored image:
+O   O
+ O O 
+  O  
+ O O 
+O   O
+
+
+
+Input test image:
+OOOOO
+O   O
+O O O
+O   O
+OOOOO
+
+The associated stored image:
+OOOOO
+O   O
+O O O
+O   O
+OOOOO
+
+
+
