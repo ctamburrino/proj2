@@ -6,7 +6,7 @@
  * - David Kujawinski
  * - Dinh Troung
  * 
- * Date Last Modified: 3/7/2025
+ * Date Last Modified: 4/9/2025
  */
 
 import java.io.BufferedReader;
@@ -30,7 +30,7 @@ public class FileParser {
     Return:
     List of DataSamples representing the dataset of sample data
     */
-    List<DataSample> dataset = new ArrayList<>();
+        List<DataSample> dataset = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFileName))){
             String line;
             // Parse header lines
@@ -62,11 +62,13 @@ public class FileParser {
                 int pixelArrayIndex = 0;
                 for (int j = 0; j < inputRows; j++){
                     line = reader.readLine();
+                    // If line is empty
                     if (line.equals("")){
                         for (int k = 0; k < inputColumns; k++){
                             pixelArray[pixelArrayIndex] = -1;
                             pixelArrayIndex++;
                         }
+                    // Parse by character
                     }else{
                         for (int k = 0; k < inputColumns; k++){
                             char c = line.charAt(k);
@@ -76,15 +78,16 @@ public class FileParser {
                             pixelArray[pixelArrayIndex] = -1;
                         }
                         pixelArrayIndex++;
+                        }
                     }
                 }
-            }
                 
                 // Create data sample and store in dataset
                 DataSample newDataSample = createDataSample(inputRows, inputColumns);
                 newDataSample.setPixelArray(pixelArray);
                 dataset.add(newDataSample);
             }
+
             return dataset;
         }catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
@@ -99,7 +102,6 @@ public class FileParser {
     Parameters:
     - int rows: number of rows in input grid
     - int columns: number of columns in input grid
-    - int output Dimension: number of output types
 
     Return:
     DataSample representing one sample of data
