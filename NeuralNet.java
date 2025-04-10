@@ -29,7 +29,7 @@ public class NeuralNet {
     -Training Settings netTrainingSettings: Data structure that holds training information for the data samples.
 
     Return:
-    - boolean representing training occured successfully.
+    - boolean representing training occurred successfully.
     */
         // Get dataset
         List<DataSample> dataset = netTrainingSettings.dataset;
@@ -46,7 +46,7 @@ public class NeuralNet {
             updateWeightMatrix(weightMatrix, sample.getPixelArray());
         }
 
-        //Save weights to an ouput file
+        //Save weights to an output file
         saveWeightsToFile(weightMatrix, netTrainingSettings.trainedWeightsFile);
         return true;
     }
@@ -125,18 +125,17 @@ public class NeuralNet {
             int[] xArray = sample.getPixelArray();
             int[] yArray = Arrays.copyOf(xArray, xArray.length);
 
-            //Create list of indicies that will be used to randomly select nodes
+            //Create list of indices that will be used to randomly select nodes
             List<Integer> nodes = new ArrayList<>(numNodes);
             for (int i = 0; i < numNodes; i++){
                 nodes.add(i);
             }
 
-
             while(!converged){
-                //Randomize the indicies
+                //Randomize the indices
                 Collections.shuffle(nodes);
 
-                //Set ouput array equal to input array 
+                //Set output array equal to input array 
                 yArray = Arrays.copyOf(xArray, xArray.length);
                 boolean activationChanged = false;
 
@@ -155,60 +154,58 @@ public class NeuralNet {
                     }
                 }
 
-                //Check for convergence, if nothing set input array equal to 
-                //output array and start over
+                //Check for convergence, if not converged
+                //set input array equal to output array and start over
                 if (activationChanged == false){
                     converged = true;
                 }else{
                     xArray = Arrays.copyOf(yArray, yArray.length);;
                 }
             }
-            //Retrieve classification and move to next sample
+            //Save output and move to next sample
             netClassifications[sampleNum] = yArray;
             sampleNum++;
         }
-
         return netClassifications;
     }
 
     public static int calculateYIn(int[][] weightMatrix, int[] xArray, int neuronNum, int[] yArray) {
-        /*
-        This method calculates the y in value for the corresponding pattern.
-    
-        Parameters:
-        - int[][] weightMatrix: Matrix of current weight values
-        - int[] xArray: Array of current inpute values
-        - int neuronNum: the index number of the current node being tested
-        - int[] yArray: Array of current output values
-    
-        Return:
-        - int representing computed YIn
-        */
-            int computedYIn = xArray[neuronNum];
-            for (int yElement = 0; yElement < yArray.length; yElement++) {
-                computedYIn += yArray[yElement] * weightMatrix[yElement][neuronNum];
-            }
-            return computedYIn;
+    /*
+    This method calculates the y in value for the corresponding pattern.
+
+    Parameters:
+    - int[][] weightMatrix: Matrix of current weight values
+    - int[] xArray: Array of current input values
+    - int neuronNum: the index number of the current node being tested
+    - int[] yArray: Array of current output values
+
+    Return:
+    - int representing computed YIn
+    */
+        int computedYIn = xArray[neuronNum];
+        for (int yElement = 0; yElement < yArray.length; yElement++) {
+            computedYIn += yArray[yElement] * weightMatrix[yElement][neuronNum];
         }
+        return computedYIn;
+    }
     
-    
-        public static int applyActivationFunction(int yIn, int prevY) {
-        /*
-        Applies activation function to value.
-    
-        Parameters:
-        - int yIn: value to be apply activation function on
-        - int prevY: the current output value prior to activation
-    
-        Return:
-        int representing output of function
-        */
-            if (yIn > 0) {
-                return 1;
-            } else if(yIn < 0){
-                return -1;
-            } else{
-                return prevY;
-            }
+    public static int applyActivationFunction(int yIn, int prevY) {
+    /*
+    Applies activation function to value.
+
+    Parameters:
+    - int yIn: value to be apply activation function on
+    - int prevY: the current output value prior to activation
+
+    Return:
+    int representing output of function
+    */
+        if (yIn > 0) {
+            return 1;
+        } else if(yIn < 0){
+            return -1;
+        } else{
+            return prevY;
         }
+    }
 }
