@@ -1,0 +1,33 @@
+5
+5
+5
+
+  O  
+  O  
+OOOOO
+  O  
+  O  
+
+O    
+ O   
+  O  
+   O 
+    O
+
+O   O
+ O O 
+  O  
+ O O 
+O   O
+
+O O O
+ O O 
+O O O
+ O O 
+O O O
+
+OOOOO
+O   O
+O O O
+O   O
+OOOOO
