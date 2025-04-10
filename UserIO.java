@@ -62,7 +62,7 @@ public class UserIO {
                         System.out.println("Failed to execute training algorithm.");
                     }
                     return 1;
-                // User selecets testing
+                // User selects testing
                 case 2:
                     netTestingSettings = getTestingSettings(netTestingSettings);
                     netTestingSettings.dataset = FileParser.parseDataFile(netTestingSettings.testingDataFilePath);
@@ -83,7 +83,6 @@ public class UserIO {
             }
         }
     }
-
 
     /*
     Prompts user for questions, and collects response to be saved in
@@ -183,7 +182,7 @@ public class UserIO {
     - prompt - prompt to display to user
 
     Return:
-    - String representing filename specififed by user
+    - String representing filename specified by user
     */
     private static String getValidFile(String prompt) {
         File file = new File("");
@@ -208,6 +207,7 @@ public class UserIO {
     Parameters:
     - int[][] testingResults: Matrix representing testing results
     - String testingResultsOutputFilePath: filepath of output file specified by user
+    - List<DataSample> representing the original testing images
     */
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(testingResultsOutputFilePath))) {
             for (int i = 0; i < testingResults.length; i++){
@@ -218,8 +218,7 @@ public class UserIO {
                 writer.write("Input test image:\n");
                 writer.write(arrayToString(currentTestingSample.getPixelArray(), currentTestingSample.getRowDimension()));
 
-                //print assoicated stored image:
-                //increments the labels
+                //print associated stored image:
                 writer.write("The associated stored image:\n");
                 writer.write(arrayToString(currentTestingResult, currentTestingSample.getRowDimension()));
 
@@ -233,33 +232,32 @@ public class UserIO {
         }
     }
 
-        /*
-        * a method that turns an array into a string without brackets or commas, with each element being space separated
-        *
-        * Parameters:
-        * int[] array - the array to be transformed
-        *
-        * Returns:
-        * a String of the transformed array
-        *
-        * */
-        public static String arrayToString(int[] samplePixelArray, int numRowsAndColumns){
-            StringBuilder sb = new StringBuilder();
-            int samplePixelArrayIndex = 0;
-            while (samplePixelArrayIndex < samplePixelArray.length){
-                for(int i = 0; i < numRowsAndColumns; i++){
-                    if(samplePixelArray[samplePixelArrayIndex] == 1){
-                        sb.append("O");
-                    } else{
-                        sb.append(" ");
-                    }
-                    samplePixelArrayIndex++;
+    /*
+    * A method that turns the sample pixel array into a pixel grid, filled with 'O' for 1, and ' ' for a -1
+    *
+    * Parameters:
+    * int[] samplePixelArray - the array to be transformed
+    * int numRowsAndColumns - represents number of rows and columns
+    *
+    * Returns:
+    * a String of the transformed array
+    *
+    * */
+    public static String arrayToString(int[] samplePixelArray, int numRowsAndColumns){
+        StringBuilder sb = new StringBuilder();
+        int samplePixelArrayIndex = 0;
+        while (samplePixelArrayIndex < samplePixelArray.length){
+            for(int i = 0; i < numRowsAndColumns; i++){
+                if(samplePixelArray[samplePixelArrayIndex] == 1){
+                    sb.append("O");
+                } else{
+                    sb.append(" ");
                 }
-                sb.append("\n");
+                samplePixelArrayIndex++;
             }
             sb.append("\n");
-            return sb.toString();
         }
+        sb.append("\n");
+        return sb.toString();
+    }
 }
-
-
