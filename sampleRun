@@ -1,0 +1,42 @@
+Script started on 2025-04-10 18:31:49-07:00 [TERM="xterm-256color" TTY="/dev/pts/4" COLUMNS="70" LINES="60"]
+[?2004h[38;5;39mdkujawinski(B[m[38;5;15m@(B[m[38;5;136mgh117dl04(B[m[38;5;15m (B[m[38;5;2mproj2(B[m[38;5;15m>(B[m java Main
+[?2004lWelcome to our neural network - A Discrete Hopfield Net!
+1) Enter 1 to train the net on a data file
+2) Enter 2 to test the net on a data file
+3) Enter 3 to quit
+1
+
+Enter the training file name: 
+Data_Samples+ _Normal
+
+Enter a file name to save the trained weight values:
+trainedWeights
+Weights saved successfully to trainedWeights.txt
+
+Successfully trained Neural Net
+
+Welcome to our neural network - A Discrete Hopfield Net!
+1) Enter 1 to train the net on a data file
+2) Enter 2 to test the net on a data file
+3) Enter 3 to quit
+2
+
+Enter the trained net weight file name:
+trainedWeights
+
+Enter the testing file name: 
+Data_Samples_Normal
+
+Enter a file name to save the testing results:
+normalresul     Results
+Results saved successfully to normalResults.txt
+
+Welcome to our neural network - A Discrete Hopfield Net!
+1) Enter 1 to train the net on a data file
+2) Enter 2 to test the net on a data file
+3) Enter 3 to quit
+3
+[?2004h[38;5;39mdkujawinski(B[m[38;5;15m@(B[m[38;5;136mgh117dl04(B[m[38;5;15m (B[m[38;5;2mproj2(B[m[38;5;15m>(B[m exit
+[?2004lexit
+
+Script done on 2025-04-10 18:33:57-07:00 [COMMAND_EXIT_CODE="0"]
